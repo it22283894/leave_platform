@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leave Management Platform 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:14px;color:#222;background:#f5f5f5}
+.app{padding:1rem;max-width:1400px;margin:auto}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;background:#fff;padding:12px 16px;border-radius:10px;border:1px solid #e0e0e0}
+.title{font-size:20px;font-weight:600;color:#185FA5}
+.subtitle{font-size:12px;color:#666;margin-top:2px}
+.tabs{display:flex;gap:0;border-bottom:2px solid #e0e0e0;margin-bottom:1rem;background:#fff;border-radius:8px 8px 0 0;overflow:hidden}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;border-bottom:3px solid transparent;color:#666;transition:all 0.15s;white-space:nowrap}
+.tab:hover{background:#f0f4ff;color:#185FA5}
+.tab.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600;background:#f0f4ff}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1rem}
+.metric{background:#f0f4ff;border-radius:8px;padding:.75rem 1rem;border:1px solid #dde8f8}
+.metric-label{font-size:12px;color:#555;margin-bottom:4px}
+.metric-value{font-size:24px;font-weight:600}
+select,input[type=text],input[type=date]{font-size:13px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222}
+select:focus,input:focus{outline:2px solid #185FA5;border-color:#185FA5}
+button{cursor:pointer;font-size:13px;padding:6px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222}
+button:hover{background:#f0f0f0}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}
+.btn-primary:hover{background:#0C447C}
+.btn-danger{background:#fff;color:#A32D2D;border-color:#A32D2D;font-size:12px;padding:3px 8px}
+.btn-danger:hover{background:#FCEBEB}
+.cal-wrapper{overflow-x:auto;border:1px solid #e0e0e0;border-radius:8px}
+.cal-grid{display:grid;font-size:11px;min-width:max-content}
+.cal-head{padding:5px 8px;background:#f0f4ff;font-weight:600;border:0.5px solid #ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;top:0;z-index:3}
+.cal-day-head{padding:4px 2px;text-align:center;background:#f0f4ff;border:0.5px solid #ddd;font-weight:600;position:sticky;top:0;z-index:3}
+.cal-name{padding:4px 8px;border:0.5px solid #e8e8e8;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;position:sticky;left:0;z-index:2;cursor:default}
+.cal-cell{padding:2px;text-align:center;border:0.5px solid #e8e8e8;background:#fff;cursor:pointer;min-height:26px;display:flex;align-items:center;justify-content:center}
+.cal-cell:hover{background:#e8f0fe}
+.cal-cell.weekend{background:#f5f5f5}
+.cal-cell.today-col{background:#fffbf0}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;line-height:1.5;letter-spacing:0.02em}
+.badge-AN{background:#B5D4F4;color:#0C447C}
+.badge-CA{background:#9FE1CB;color:#085041}
+.badge-SK{background:#FAC775;color:#633806}
+.badge-HD{background:#CECBF6;color:#3C3489}
+.badge-DL{background:#F5C4B3;color:#712B13}
+.badge-NP{background:#F7C1C1;color:#791F1F}
+.badge-LT{background:#F4C0D1;color:#72243E}
+.badge-WH{background:#C0DD97;color:#27500A}
+.legend{display:flex;gap:8px;flex-wrap:wrap}
+.form-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:#555;font-weight:500}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:7px 12px;text-align:left;background:#f0f4ff;border-bottom:1px solid #ddd;font-weight:600;white-space:nowrap}
+td{padding:7px 12px;border-bottom:0.5px solid #eee}
+tr:hover td{background:#fafafa}
+.dept-row td{background:#f8f8f8;font-weight:600;font-size:12px;color:#555}
+.emp-card{border:1px solid #e0e0e0;border-radius:8px;padding:8px 12px;background:#fff}
+.emp-card.on-leave{border-color:#85B7EB;background:#EBF4FF}
+.toast{position:fixed;top:20px;right:20px;background:#185FA5;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;box-shadow:0 2px 12px rgba(0,0,0,0.15)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:1.5rem;min-width:340px;max-width:480px;width:90%;box-shadow:0 4px 32px rgba(0,0,0,0.15)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:1rem}
+.modal-actions{display:flex;gap:8px;margin-top:1rem}
+</style>
+</head>
+<body>
+<div class="app" id="root">
+<div class="toast" id="toast">Saved!</div>
+
+<div class="modal-overlay" id="cellModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Apply Leave</div>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modalConfirm">Apply</button>
+      <button onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" id="modalRemove" style="display:none" onclick="removeFromModal()">Remove Leave</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div>
+    <div class="title">&#128197; Leave Management Platform 2026</div>
+    <div class="subtitle">Operations Team — Real-time leave tracker &amp; calendar</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <select id="empFilter" style="width:160px" onchange="renderCalendar()"><option value="">All Staff</option></select>
+    <button class="btn-primary" onclick="showTab('apply')">+ Apply Leave</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('calendar')" id="tab-calendar">&#128197; Monthly Calendar</div>
+  <div class="tab" onclick="showTab('dayview')" id="tab-dayview">&#128100; Today's Status</div>
+  <div class="tab" onclick="showTab('apply')" id="tab-apply">&#128221; Apply Leave</div>
+  <div class="tab" onclick="showTab('summary')" id="tab-summary">&#128200; Annual Summary</div>
+</div>
+
+<!-- Calendar Pane -->
+<div id="pane-calendar">
+  <div class="card" style="padding:.75rem 1rem">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between">
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="monthSel" onchange="renderCalendar()" style="width:130px"></select>
+        <span style="font-size:13px;color:#666">2026</span>
+      </div>
+      <div class="legend">
+        <span class="badge badge-AN">AN Annual</span>
+        <span class="badge badge-CA">CA Casual</span>
+        <span class="badge badge-SK">SK Sick</span>
+        <span class="badge badge-HD">HD Half Day</span>
+        <span class="badge badge-DL">DL Duty</span>
+        <span class="badge badge-NP">NP No Pay</span>
+        <span class="badge badge-LT">LT Late</span>
+        <span class="badge badge-WH">WH Work Home</span>
+      </div>
+    </div>
+  </div>
+  <div class="cal-wrapper" style="max-height:70vh;overflow-y:auto">
+    <div id="calGrid"></div>
+  </div>
+  <p style="font-size:11px;color:#888;margin-top:6px">Click any cell to apply or remove leave. Weekends shown in gray.</p>
+</div>
+
+<!-- Day View Pane -->
+<div id="pane-dayview" style="display:none">
+  <div class="card" style="padding:.75rem 1rem;margin-bottom:.75rem">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input type="date" id="dayDate" onchange="renderDayView()">
+      <span style="font-size:14px;font-weight:500" id="dayLabel"></span>
+    </div>
+  </div>
+  <div id="dayViewContent"></div>
+</div>
+
+<!-- Apply Pane -->
+<div id="pane-apply" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:900px">
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;margin-bottom:1rem">Apply for Leave</div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:160px">
+          <label>Staff Member *</label>
+          <select id="applyEmp" style="width:100%"></select>
+        </div>
+        <div class="form-group">
+          <label>Leave Type *</label>
+          <select id="applyType">
+            <option value="AN">Annual (AN)</option>
+            <option value="CA">Casual (CA)</option>
+            <option value="SK">Sick (SK)</option>
+            <option value="HD">Half Day (HD)</option>
+            <option value="DL">Duty Leave (DL)</option>
+            <option value="NP">No Pay (NP)</option>
+            <option value="LT">Late (LT)</option>
+            <option value="WH">Work From Home (WH)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>From Date *</label>
+          <input type="date" id="applyFrom">
+        </div>
+        <div class="form-group">
+          <label>To Date *</label>
+          <input type="date" id="applyTo">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Reason (optional)</label>
+        <input type="text" id="applyReason" placeholder="e.g. Medical appointment" style="width:100%">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" onclick="submitLeave()">Submit Leave</button>
+        <button onclick="showTab('calendar')">Cancel</button>
+      </div>
+      <div id="applyMsg" style="margin-top:8px;font-size:13px"></div>
+    </div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;margin-bottom:.75rem">Recent Applications</div>
+      <div id="recentApps" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Summary Pane -->
+<div id="pane-summary" style="display:none">
+  <div class="grid4" id="summaryMetrics"></div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+      <div style="font-size:15px;font-weight:600">Leave Summary by Staff — 2026</div>
+      <button onclick="exportCSV()" style="font-size:12px">&#11015; Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table id="summaryTable">
+        <thead><tr>
+          <th>Designation</th><th>ID</th><th>Name</th>
+          <th>AN</th><th>CA</th><th>SK</th><th>HD</th><th>DL</th><th>NP</th><th>LT</th><th>WH</th><th>Total</th>
+        </tr></thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const STAFF=[
+  {id:1029,name:"Shamith Harishchandra",designation:"APM"},
+  {id:269,name:"Sudesh Samarasinghe",designation:"SOE"},
+  {id:1009,name:"Aman Fernando",designation:"SOE"},
+  {id:683,name:"Nalaka Premarathne",designation:"PE"},
+  {id:687,name:"Kushan Karunathilake",designation:"PE"},
+  {id:1069,name:"Uthpala Abeywardena",designation:"PE"},
+  {id:1193,name:"Uresh Edirisinghe",designation:"PE"},
+  {id:202,name:"Priyantha Fernando",designation:"JE"},
+  {id:967,name:"Kolitha Fernando",designation:"JE"},
+  {id:1100,name:"Harsha Nonis",designation:"JE"},
+  {id:1182,name:"Deshan Wijesuriya",designation:"JE"},
+  {id:1065,name:"Asanka Karunarathne",designation:"JE"},
+  {id:1449,name:"Rashmi",designation:"JE"},
+  {id:1152,name:"Tharindu Silva",designation:"JE"},
+  {id:1170,name:"Tharindu Kalupahana",designation:"JE"},
+  {id:1448,name:"Dimashi Thabrew",designation:"JE"},
+  {id:1495,name:"Tharushi Ranaweera",designation:"JE"},
+  {id:1454,name:"Tharusha Nirupadhi",designation:"JE"},
+  {id:1492,name:"Thathsara",designation:"CITO"}
+];
+
+const LEAVE_TYPES=["AN","CA","SK","HD","DL","NP","LT","WH"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const STORAGE_KEY="leave_mgmt_2026_v1";
+
+let leaveData={};
+let modalState={empId:null,ds:null};
+
+function saveLocal(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(leaveData));}catch(e){}}
+function loadLocal(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)leaveData=JSON.parse(r);}catch(e){}}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.style.display="block";
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.style.display="none",2000);
+}
+
+function leaveKey(empId,ds){return empId+"_"+ds;}
+function getLeave(empId,ds){return leaveData[leaveKey(empId,ds)]||null;}
+function setLeave(empId,ds,type,reason){leaveData[leaveKey(empId,ds)]={type,reason:reason||""};}
+function removeLeave(empId,ds){delete leaveData[leaveKey(empId,ds)];}
+
+function getDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function dateStr(y,m,d){return y+"-"+(m+1).toString().padStart(2,"0")+"-"+d.toString().padStart(2,"0");}
+function isWeekend(y,m,d){const wd=new Date(y,m,d).getDay();return wd===0||wd===6;}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+function showTab(tab){
+  ["calendar","dayview","apply","summary"].forEach(t=>{
+    document.getElementById("pane-"+t).style.display=t===tab?"block":"none";
+    document.getElementById("tab-"+t).classList.toggle("active",t===tab);
+  });
+  if(tab==="calendar")renderCalendar();
+  if(tab==="dayview"){
+    const dd=document.getElementById("dayDate");
+    if(!dd.value)dd.value=todayStr();
+    renderDayView();
+  }
+  if(tab==="summary")renderSummary();
+  if(tab==="apply")renderRecentApps();
+}
+
+function renderCalendar(){
+  const ms=document.getElementById("monthSel");
+  const m=parseInt(ms.value);
+  const y=2026;
+  const days=getDaysInMonth(y,m);
+  const empF=document.getElementById("empFilter").value;
+  const staff=empF?STAFF.filter(s=>s.id==empF):STAFF;
+  const today=todayStr();
+
+  let cols=200+days*30;
+  let html='<div style="display:grid;grid-template-columns:200px repeat('+days+',30px);min-width:'+cols+'px">';
+  
+  // Header row
+  html+='<div class="cal-head" style="position:sticky;top:0;left:0;z-index:5">Staff Member</div>';
+  for(let d=1;d<=days;d++){
+    const wd=new Date(y,m,d).getDay();
+    const isWe=wd===0||wd===6;
+    const ds=dateStr(y,m,d);
+    const isToday=ds===today;
+    html+='<div class="cal-day-head" style="'+(isWe?"color:#999":"")+(isToday?";background:#FFF3CC":"")+'">'+d+'<br><span style="font-size:9px">'+DAYS[wd]+'</span></div>';
+  }
+
+  let lastDept="";
+  staff.forEach(emp=>{
+    if(emp.designation!==lastDept){
+      html+='<div style="grid-column:1/-1;background:#e8eef8;padding:4px 10px;font-size:11px;font-weight:600;color:#3a5a9a;border-top:1px solid #ccd8ef;border-bottom:0.5px solid #ccd8ef;">'+emp.designation+'</div>';
+      lastDept=emp.designation;
+    }
+    html+='<div class="cal-name" title="'+emp.name+' (#'+emp.id+')">#'+emp.id+' '+emp.name+'</div>';
+    for(let d=1;d<=days;d++){
+      const ds=dateStr(y,m,d);
+      const we=isWeekend(y,m,d);
+      const isToday=ds===today;
+      const lv=getLeave(emp.id,ds);
+      let cellClass="cal-cell"+(we?" weekend":"")+(isToday?" today-col":"");
+      if(lv){
+        html+='<div class="'+cellClass+'" onclick="openCellModal('+emp.id+',\''+ds+'\')" title="'+emp.name+' — '+lv.type+(lv.reason?" ("+lv.reason+")":"")+'"><span class="badge badge-'+lv.type+'">'+lv.type+'</span></div>';
+      }else{
+        html+='<div class="'+cellClass+'" onclick="openCellModal('+emp.id+',\''+ds+'\')"></div>';
+      }
+    }
+  });
+  html+='</div>';
+  document.getElementById("calGrid").innerHTML=html;
+}
+
+function openCellModal(empId,ds){
+  const emp=STAFF.find(s=>s.id===empId);
+  const existing=getLeave(empId,ds);
+  modalState={empId,ds};
+  document.getElementById("modalTitle").textContent=(existing?"Edit / Remove":"Apply")+" Leave — "+emp.name+" on "+ds;
+  const rmBtn=document.getElementById("modalRemove");
+  const confBtn=document.getElementById("modalConfirm");
+  if(existing){
+    document.getElementById("modalBody").innerHTML=
+      '<div style="margin-bottom:12px"><span class="badge badge-'+existing.type+'" style="font-size:13px;padding:3px 8px">'+existing.type+'</span> <span style="color:#555">'+existing.reason+'</span></div>'+
+      '<div class="form-group"><label>Change to:</label><select id="modalType" style="width:100%;margin-top:4px">'+LEAVE_TYPES.map(t=>'<option value="'+t+'"'+(t===existing.type?" selected":"")+'>'+t+'</option>').join('')+'</select></div>'+
+      '<div class="form-group" style="margin-top:10px"><label>Reason:</label><input type="text" id="modalReason" value="'+existing.reason+'" style="width:100%;margin-top:4px"></div>';
+    confBtn.textContent="Update";
+    rmBtn.style.display="inline-block";
+  }else{
+    document.getElementById("modalBody").innerHTML=
+      '<div class="form-group"><label>Leave Type:</label><select id="modalType" style="width:100%;margin-top:4px">'+LEAVE_TYPES.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'</select></div>'+
+      '<div class="form-group" style="margin-top:10px"><label>Reason (optional):</label><input type="text" id="modalReason" placeholder="e.g. Medical" style="width:100%;margin-top:4px"></div>';
+    confBtn.textContent="Apply";
+    rmBtn.style.display="none";
+  }
+  confBtn.onclick=confirmModal;
+  document.getElementById("cellModal").classList.add("open");
+}
+
+function confirmModal(){
+  const type=document.getElementById("modalType").value;
+  const reason=(document.getElementById("modalReason").value||"").trim();
+  setLeave(modalState.empId,modalState.ds,type,reason);
+  saveLocal();
+  showToast("Leave saved!");
+  closeModal();
+  renderCalendar();
+}
+
+function removeFromModal(){
+  removeLeave(modalState.empId,modalState.ds);
+  saveLocal();
+  showToast("Leave removed!");
+  closeModal();
+  renderCalendar();
+}
+
+function closeModal(){document.getElementById("cellModal").classList.remove("open");}
+document.getElementById("cellModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+function renderDayView(){
+  const dd=document.getElementById("dayDate").value;
+  if(!dd)return;
+  const dt=new Date(dd+"T12:00:00");
+  document.getElementById("dayLabel").textContent=dt.toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const onLeave=[],present=[];
+  STAFF.forEach(emp=>{
+    const lv=getLeave(emp.id,dd);
+    if(lv)onLeave.push({...emp,leave:lv});
+    else present.push(emp);
+  });
+  const pct=Math.round((STAFF.length-onLeave.length)/STAFF.length*100);
+  let html='<div class="grid4">';
+  html+='<div class="metric"><div class="metric-label">Total Staff</div><div class="metric-value">'+STAFF.length+'</div></div>';
+  html+='<div class="metric" style="background:#FFF0F0;border-color:#F7C1C1"><div class="metric-label">On Leave</div><div class="metric-value" style="color:#A32D2D">'+onLeave.length+'</div></div>';
+  html+='<div class="metric" style="background:#EAFBF0;border-color:#9FE1CB"><div class="metric-label">Present/Available</div><div class="metric-value" style="color:#085041">'+(STAFF.length-onLeave.length)+'</div></div>';
+  html+='<div class="metric"><div class="metric-label">Attendance</div><div class="metric-value">'+pct+'%</div></div>';
+  html+='</div>';
+  if(onLeave.length){
+    html+='<div class="card"><div style="font-size:14px;font-weight:600;color:#A32D2D;margin-bottom:10px">On Leave Today ('+onLeave.length+')</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px">';
+    onLeave.forEach(emp=>{
+      html+='<div class="emp-card on-leave">';
+      html+='<div style="font-weight:600;font-size:13px">'+emp.name+'</div>';
+      html+='<div style="font-size:11px;color:#666;margin-bottom:5px">'+emp.designation+' — #'+emp.id+'</div>';
+      html+='<span class="badge badge-'+emp.leave.type+'">'+emp.leave.type+'</span>';
+      if(emp.leave.reason)html+=' <span style="font-size:11px;color:#666">'+emp.leave.reason+'</span>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  }
+  html+='<div class="card"><div style="font-size:14px;font-weight:600;color:#085041;margin-bottom:10px">Present / No Leave Marked ('+present.length+')</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px">';
+  present.forEach(emp=>{
+    html+='<div class="emp-card"><div style="font-weight:600;font-size:13px">'+emp.name+'</div><div style="font-size:11px;color:#666">'+emp.designation+' — #'+emp.id+'</div></div>';
+  });
+  html+='</div></div>';
+  document.getElementById("dayViewContent").innerHTML=html;
+}
+
+function submitLeave(){
+  const empId=parseInt(document.getElementById("applyEmp").value);
+  const type=document.getElementById("applyType").value;
+  const from=document.getElementById("applyFrom").value;
+  const to=document.getElementById("applyTo").value;
+  const reason=document.getElementById("applyReason").value.trim();
+  const msgEl=document.getElementById("applyMsg");
+  if(!empId||!from||!to){msgEl.innerHTML='<span style="color:#A32D2D">Please fill all required fields.</span>';return;}
+  if(from>to){msgEl.innerHTML='<span style="color:#A32D2D">From date must be on or before To date.</span>';return;}
+  const f=new Date(from+"T12:00:00");
+  const t2=new Date(to+"T12:00:00");
+  let count=0;
+  for(let d=new Date(f);d<=t2;d.setDate(d.getDate()+1)){
+    const y=d.getFullYear(),mo=d.getMonth(),dd=d.getDate();
+    if(!isWeekend(y,mo,dd)){
+      setLeave(empId,dateStr(y,mo,dd),type,reason);
+      count++;
+    }
+  }
+  saveLocal();
+  msgEl.innerHTML='<span style="color:#085041">&#10003; '+count+' working day(s) applied successfully!</span>';
+  renderRecentApps();
+  setTimeout(()=>msgEl.innerHTML="",4000);
+}
+
+function renderRecentApps(){
+  const entries=Object.entries(leaveData).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
+  if(!entries.length){document.getElementById("recentApps").innerHTML='<div style="color:#888;font-size:13px">No leave applications yet.</div>';return;}
+  let html='<table><thead><tr><th>Date</th><th>Staff</th><th>Type</th><th>Reason</th><th></th></tr></thead><tbody>';
+  entries.forEach(([key,val])=>{
+    const parts=key.split("_");
+    const empId=parseInt(parts[0]);
+    const ds=parts[1];
+    const emp=STAFF.find(s=>s.id===empId);
+    if(!emp||!ds)return;
+    html+='<tr><td style="white-space:nowrap">'+ds+'</td><td>'+emp.name+'</td>';
+    html+='<td><span class="badge badge-'+val.type+'">'+val.type+'</span></td>';
+    html+='<td style="color:#666;font-size:12px">'+val.reason+'</td>';
+    html+='<td><button class="btn-danger" onclick="deleteEntry(\''+key+'\')">Remove</button></td></tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById("recentApps").innerHTML=html;
+}
+
+function deleteEntry(key){
+  if(!confirm("Remove this leave entry?"))return;
+  delete leaveData[key];
+  saveLocal();
+  showToast("Removed!");
+  renderRecentApps();
+}
+
+function renderSummary(){
+  const counts={};
+  STAFF.forEach(emp=>{counts[emp.id]={AN:0,CA:0,SK:0,HD:0,DL:0,NP:0,LT:0,WH:0};});
+  Object.entries(leaveData).forEach(([key,val])=>{
+    const parts=key.split("_");
+    const empId=parseInt(parts[0]);
+    if(counts[empId]!==undefined&&LEAVE_TYPES.includes(val.type)){
+      counts[empId][val.type]++;
+    }
+  });
+  const totAll=STAFF.reduce((s,e)=>s+LEAVE_TYPES.reduce((ss,t)=>ss+(counts[e.id][t]||0),0),0);
+  const totAn=STAFF.reduce((s,e)=>s+(counts[e.id].AN||0),0);
+  const totCa=STAFF.reduce((s,e)=>s+(counts[e.id].CA||0),0);
+  const totSk=STAFF.reduce((s,e)=>s+(counts[e.id].SK||0),0);
+  document.getElementById("summaryMetrics").innerHTML=
+    '<div class="metric"><div class="metric-label">Total leave days (all)</div><div class="metric-value">'+totAll+'</div></div>'+
+    '<div class="metric" style="background:#EBF4FF;border-color:#B5D4F4"><div class="metric-label">Annual leaves</div><div class="metric-value" style="color:#185FA5">'+totAn+'</div></div>'+
+    '<div class="metric" style="background:#EAFBF0;border-color:#9FE1CB"><div class="metric-label">Casual leaves</div><div class="metric-value" style="color:#085041">'+totCa+'</div></div>'+
+    '<div class="metric" style="background:#FFFBF0;border-color:#FAC775"><div class="metric-label">Sick leaves</div><div class="metric-value" style="color:#633806">'+totSk+'</div></div>';
+  let lastDept="",html="";
+  STAFF.forEach(emp=>{
+    if(emp.designation!==lastDept){
+      html+='<tr class="dept-row"><td colspan="12">'+emp.designation+'</td></tr>';
+      lastDept=emp.designation;
+    }
+    const c=counts[emp.id]||{};
+    const total=LEAVE_TYPES.reduce((s,t)=>s+(c[t]||0),0);
+    html+='<tr><td style="color:#666;font-size:12px">'+emp.designation+'</td><td style="color:#888;font-size:12px">#'+emp.id+'</td><td>'+emp.name+'</td>';
+    LEAVE_TYPES.forEach(t=>html+='<td style="text-align:center">'+(c[t]?'<span class="badge badge-'+t+'">'+c[t]+'</span>':'-')+'</td>');
+    html+='<td style="text-align:center;font-weight:600">'+total+'</td></tr>';
+  });
+  document.getElementById("summaryBody").innerHTML=html;
+}
+
+function exportCSV(){
+  const counts={};
+  STAFF.forEach(emp=>{counts[emp.id]={AN:0,CA:0,SK:0,HD:0,DL:0,NP:0,LT:0,WH:0};});
+  Object.entries(leaveData).forEach(([key,val])=>{
+    const empId=parseInt(key.split("_")[0]);
+    if(counts[empId]!==undefined&&LEAVE_TYPES.includes(val.type))counts[empId][val.type]++;
+  });
+  let csv="Designation,ID,Name,AN,CA,SK,HD,DL,NP,LT,WH,Total\n";
+  STAFF.forEach(emp=>{
+    const c=counts[emp.id];
+    const total=LEAVE_TYPES.reduce((s,t)=>s+c[t],0);
+    csv+=emp.designation+","+emp.id+","+emp.name+","+LEAVE_TYPES.map(t=>c[t]).join(",")+","+total+"\n";
+  });
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="Leave_Summary_2026.csv";
+  a.click();
+}
+
+function initSelects(){
+  const ms=document.getElementById("monthSel");
+  const curM=new Date().getMonth();
+  MONTHS.forEach((m,i)=>{
+    const o=document.createElement("option");
+    o.value=i;o.textContent=m;
+    if(i===curM)o.selected=true;
+    ms.appendChild(o);
+  });
+  const empF=document.getElementById("empFilter");
+  const applyE=document.getElementById("applyEmp");
+  STAFF.forEach(emp=>{
+    const o1=document.createElement("option");
+    o1.value=emp.id;o1.textContent=emp.name+" (#"+emp.id+")";
+    empF.appendChild(o1);
+    const o2=document.createElement("option");
+    o2.value=emp.id;o2.textContent=emp.name+" (#"+emp.id+")";
+    applyE.appendChild(o2);
+  });
+  const td=todayStr();
+  document.getElementById("applyFrom").value=td;
+  document.getElementById("applyTo").value=td;
+}
+
+loadLocal();
+initSelects();
+renderCalendar();
+</script>
+</body>
+</html>
